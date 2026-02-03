@@ -31,7 +31,7 @@ const pandaStates = [
 
 // Calculate random position for No button
 function getRandomPosition() {
-    const container = document.querySelector('.buttons-container');
+    const container = document.getElementById('proposalSection');
     const containerRect = container.getBoundingClientRect();
     const buttonRect = noButton.getBoundingClientRect();
 
@@ -40,9 +40,46 @@ function getRandomPosition() {
     const maxX = containerRect.width - buttonRect.width - padding;
     const maxY = containerRect.height - buttonRect.height - padding;
 
-    // Generate random position
-    const randomX = Math.max(0, Math.random() * maxX);
-    const randomY = Math.max(0, Math.random() * maxY);
+    let randomX, randomY;
+    let attempts = 0;
+    const maxAttempts = 50;
+
+    // For the first 5 interactions, avoid overlapping with Yes button
+    if (noInteractionCount < 5) {
+        const yesRect = yesButton.getBoundingClientRect();
+        const containerLeft = containerRect.left;
+        const containerTop = containerRect.top;
+
+        do {
+            randomX = Math.max(0, Math.random() * maxX);
+            randomY = Math.max(0, Math.random() * maxY);
+
+            // Calculate the absolute position of the No button
+            const noLeft = containerLeft + randomX;
+            const noRight = noLeft + buttonRect.width;
+            const noTop = containerTop + randomY;
+            const noBottom = noTop + buttonRect.height;
+
+            // Check if there's overlap with Yes button
+            const hasOverlap = !(
+                noRight < yesRect.left ||
+                noLeft > yesRect.right ||
+                noBottom < yesRect.top ||
+                noTop > yesRect.bottom
+            );
+
+            // If no overlap, we found a good position
+            if (!hasOverlap) {
+                break;
+            }
+
+            attempts++;
+        } while (attempts < maxAttempts);
+    } else {
+        // After 5 interactions, allow any position
+        randomX = Math.max(0, Math.random() * maxX);
+        randomY = Math.max(0, Math.random() * maxY);
+    }
 
     return { x: randomX, y: randomY };
 }
@@ -177,9 +214,12 @@ window.addEventListener('resize', () => {
 
 // Initialize No button position
 window.addEventListener('load', () => {
-    // Set initial position for No button
-    const container = document.querySelector('.buttons-container');
+    // Set initial position for No button relative to proposalSection
+    const container = document.getElementById('proposalSection');
     const containerRect = container.getBoundingClientRect();
-    noButton.style.left = `${containerRect.width / 2 + 50}px`;
-    noButton.style.top = `0px`;
+    const yesRect = yesButton.getBoundingClientRect();
+
+    // Position it to the right of the Yes button initially
+    noButton.style.left = `${yesRect.right - containerRect.left + 20}px`;
+    noButton.style.top = `${yesRect.top - containerRect.top}px`;
 });

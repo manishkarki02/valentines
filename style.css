@@ -217,6 +217,7 @@ button:hover::before {
     padding: 12px 30px;
     position: absolute;
     transition: all 0.2s ease;
+    z-index: 5;
 }
 
 .no-button:hover {
