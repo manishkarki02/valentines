@@ -96,6 +96,13 @@ function updatePandaState() {
     // Update interaction count
     noInteractionCount++;
 
+    // After 5 interactions, hide the No button
+    if (noInteractionCount >= 5) {
+        noButton.style.display = 'none';
+        pleadingText.textContent = "I guess you have no choice now... 💕😊";
+        return;
+    }
+
     // Cycle through pleading messages (stay on last one after reaching the end)
     const messageIndex = Math.min(noInteractionCount - 1, pleadingMessages.length - 1);
     pleadingText.textContent = pleadingMessages[messageIndex];
